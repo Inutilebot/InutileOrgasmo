@@ -29,10 +29,18 @@ DOMANDE_SURREALI = [
 ]
 
 def on_welcome(connection, event):
-    print("🔗 Connesso al server. Invio IDENTIFY a NickServ...")
+    print("🔗 Connesso. Invio IDENTIFY a NickServ...")
     connection.privmsg("NickServ", f"IDENTIFY {PASSWORD}")
-    print("⏳ Attendo 5 secondi per identificazione...")
-    threading.Timer(5.0, lambda: connection.join(CHANNEL)).start()
+
+def on_notice(connection, event):
+    sender = event.source or ""
+    msg = event.arguments[0]
+
+    print(f"🔔 NOTICE da {sender}: {msg}")
+
+    if "you are now identified" in msg.lower():
+        print(f"✅ Identificato! Entro in {CHANNEL}...")
+        connection.join(CHANNEL)
 
 def on_join(connection, event):
     print(f"👋 Entrato nel canale {CHANNEL}.")

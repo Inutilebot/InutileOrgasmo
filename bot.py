@@ -2,6 +2,7 @@ import irc.client
 import irc.connection
 import ssl
 import random
+import threading
 
 SERVER = "irc.simosnap.org"
 PORT = 6697
@@ -15,7 +16,7 @@ DOMANDE_EROTICHE = [
     "Preferisci dominare o essere dominato?",
     "Ti piace il dirty talk?",
     "Hai mai avuto un sogno erotico ricorrente?",
-    # ... aggiungi fino a 40 domande
+    # ... fino a 40
 ]
 
 DOMANDE_SURREALI = [
@@ -24,21 +25,14 @@ DOMANDE_SURREALI = [
     "Cosa ti fa più effetto: un bacio o un'equazione?",
     "Se il piacere fosse un frutto, quale sarebbe?",
     "Hai mai sognato di sedurre una nuvola?",
-    # ... aggiungi fino a 40 domande surreali
+    # ... fino a 40
 ]
 
 def on_welcome(connection, event):
     print("🔗 Connesso al server. Invio IDENTIFY a NickServ...")
     connection.privmsg("NickServ", f"IDENTIFY {PASSWORD}")
-
-def on_notice(connection, event):
-    sender = event.source
-    msg = event.arguments[0]
-    print(f"🔔 Notice da {sender}: {msg}")
-
-    if "identified" in msg.lower() or "accepted" in msg.lower():
-        print(f"✅ Identificato. Entro in {CHANNEL}...")
-        connection.join(CHANNEL)
+    print("⏳ Attendo 5 secondi per identificazione...")
+    threading.Timer(5.0, lambda: connection.join(CHANNEL)).start()
 
 def on_join(connection, event):
     print(f"👋 Entrato nel canale {CHANNEL}.")
@@ -68,11 +62,10 @@ def main():
             connect_factory=ssl_factory
         )
     except irc.client.ServerConnectionError as e:
-        print(f"Errore di connessione: {e}")
+        print(f"❌ Errore di connessione: {e}")
         return
 
     conn.add_global_handler("001", on_welcome)
-    conn.add_global_handler("notice", on_notice)
     conn.add_global_handler("join", on_join)
     conn.add_global_handler("privmsg", on_message)
 

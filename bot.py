@@ -2,146 +2,134 @@ import irc.client
 import irc.connection
 import ssl
 import random
+import time
 
-# Lista di 40 domande erotiche assurde (!domande)
-domande_erotiche = [
-    "Hai mai fatto l’amore con una lampada accesa solo sul comodino?",
-    "Quante volte ti sei spogliato pensando a una fotocopiatrice?",
-    "Ti sei mai eccitato leggendo il manuale del microonde?",
-    "Hai mai sognato un'orgia con i personaggi dei cartoni animati?",
-    "Preferisci leccare un gelato o...?",
-    "Hai mai chiesto a Siri di dirti cose sporche?",
-    "Hai mai provato a sedurre una pianta da appartamento?",
-    "Ti sei mai messo del burro sul corpo solo per sentire l’emozione?",
-    "Hai mai fatto un sogno erotico con una stampante?",
-    "Hai mai sentito attrazione per un semaforo?",
-    "Hai mai spogliato mentalmente il tuo fruttivendolo?",
-    "Hai mai fatto un massaggio hot a una sedia da ufficio?",
-    "Hai mai pensato di baciare una statua?",
-    "Hai mai guardato un documentario sugli animali... per eccitarti?",
-    "Hai mai provato il brivido di togliere le calze lentamente davanti allo specchio?",
-    "Hai mai ballato nudo ascoltando sigle dei cartoni?",
-    "Ti sei mai messo del miele sul corpo senza motivo?",
-    "Hai mai toccato la lavatrice durante la centrifuga... con passione?",
-    "Hai mai sussurrato cose sporche al tuo aspirapolvere?",
-    "Hai mai avuto pensieri sporchi su un oggetto da cucina?",
-    "Hai mai dato un nome erotico al tuo cuscino?",
-    "Hai mai fatto l’amore con gli occhi a una tazza di caffè?",
-    "Ti sei mai spogliato solo per te stesso alle 3 di notte?",
-    "Hai mai pensato a un bidet in modo sconveniente?",
-    "Hai mai sognato una doccia sensuale con le tende chiuse?",
-    "Ti eccita il rumore del frullatore?",
-    "Hai mai annusato un libro vecchio e provato piacere?",
-    "Hai mai accarezzato il volante come se fosse una persona?",
-    "Hai mai detto “ti amo” al tuo phon?",
-    "Hai mai trovato sexy un foglio di alluminio?",
-    "Hai mai avuto una fantasia con la carta igienica a due veli?",
-    "Hai mai desiderato sedurre il tuo specchio?",
-    "Hai mai fatto un selfie nudo solo per guardarlo subito dopo?",
-    "Hai mai baciato il telecomando?",
-    "Hai mai danzato nudo con la finestra aperta?",
-    "Hai mai parlato sporco a te stesso in uno specchio?",
-    "Hai mai messo vestiti sexy solo per buttare la spazzatura?",
-    "Hai mai sognato di limonare con la lavastoviglie?",
-    "Hai mai trovato erotico il suono del microonde?"
+# Configurazione bot
+SERVER = "irc.simosnap.org"
+PORT = 6697
+CHANNEL = "#orgasmiinutili"
+NICKNAME = "InutileOrgasmo"
+PASSWORD = "Inutili2025Orgasmi"
+
+# Domande erotiche
+DOMANDE_ERO = [
+    "Qual è la tua fantasia più inconfessabile?",
+    "Hai mai fatto sesso in un luogo pubblico?",
+    "Cosa ti eccita di più in una persona?",
+    "Se potessi provare qualsiasi esperienza sessuale, quale sarebbe?",
+    "Preferisci dominare o essere dominat*?",
+    "Ti piacciono i giochi di ruolo erotici?",
+    "Qual è la tua posizione preferita?",
+    "Hai mai guardato un film porno con qualcun altro?",
+    "Hai mai avuto un sogno erotico con una persona insospettabile?",
+    "Hai mai fatto sexting?",
+    "Qual è il tuo sex toy preferito?",
+    "Qual è la tua zona erogena più sensibile?",
+    "Hai mai fatto un’esperienza a tre?",
+    "Ti piacciono i baci lunghi o quelli mordaci?",
+    "Hai mai fatto uno spogliarello per qualcuno?",
+    "Qual è la cosa più trasgressiva che hai fatto a letto?",
+    "Preferisci il sesso lento o passionale?",
+    "Ti piacciono le carezze leggere o i morsi?",
+    "C'è qualcosa che hai sempre voluto provare ma non hai mai osato?",
+    "Ti eccita più l’odore, la voce o lo sguardo?",
+    "Hai mai provato il bondage?",
+    "Hai mai ricevuto o fatto un massaggio erotico?",
+    "Ti piace il dirty talk?",
+    "Hai mai fatto sesso ascoltando musica?",
+    "Hai mai avuto una cotta per un/a prof?",
+    "Se potessi essere un sex symbol, chi saresti?",
+    "Hai mai indossato lingerie solo per sentirti sexy?",
+    "Hai mai flirtato con uno sconosciuto solo per il brivido?",
+    "Ti piacciono i giochi di potere?",
+    "Hai mai avuto una fantasia con una celebrità?",
+    "Hai mai fatto sesso in macchina?",
+    "Qual è il posto più strano dove l’hai fatto?",
+    "Hai mai scritto una lettera erotica?",
+    "Hai mai fatto un gioco erotico da tavolo?",
+    "Ti piacciono gli occhi bendati?",
+    "Hai mai fatto sesso telefonico?",
+    "Hai mai usato ghiaccio o cera?",
+    "Qual è il tuo ricordo erotico preferito?",
+    "Hai mai usato del cibo in un contesto erotico?"
 ]
 
-# Lista di 40 domande erotiche surreali (!stocazzo)
-domande_surrealiste = [
-    "Se un pene cade in un bosco e nessuno lo sente, fa rumore?",
-    "L’universo si espande o si eccita?",
-    "I capezzoli hanno una coscienza propria?",
-    "Cosa sogna un dildo quando dorme?",
-    "È possibile avere un’erezione quantistica?",
-    "L’amore platonico tra due vibratori è reale?",
-    "Una vagina può avere nostalgia?",
-    "Se il sesso fosse un frutto, sarebbe un’ananas o un fico?",
-    "Esistono orgasmi paralleli in dimensioni alternative?",
-    "Può uno starnuto essere erotico?",
-    "Il big bang era un’eiaculazione cosmica?",
-    "Cosa succede se due ombre fanno sesso?",
-    "Un orgasmo può viaggiare nel tempo?",
-    "Il desiderio ha una massa misurabile?",
-    "Se ti masturbi in sogno, il tuo corpo gode davvero?",
-    "Può un pensiero spogliarsi?",
-    "Il profumo del desiderio esiste o lo immaginiamo?",
-    "Un sospetto di attrazione è già tradimento mentale?",
-    "Può un sospiro ingravidare un’idea?",
-    "L’orgasmo è un parente del Big Crunch?",
-    "Esistono gatti che si eccitano filosoficamente?",
-    "Il pudore è un virus o un'invenzione?",
-    "L'eiaculazione è una fuga o un ritorno?",
-    "Può un'idea avere un feticismo?",
-    "Il piacere ha una frequenza radio?",
-    "Un sogno erotico può rimanerti incinta l'anima?",
-    "Gli specchi si eccitano vedendoci nudi?",
-    "È immorale eccitarsi per un’equazione?",
-    "Un bacio può attraversare le pareti?",
-    "Un orgasmo può essere silenzioso e cosmico?",
-    "Se Dio fa sesso, è blasfemia?",
-    "L’amore può essere quantico e particellare insieme?",
-    "Se ti masturbi in una simulazione, è reale?",
-    "Il desiderio è una funzione d’onda?",
-    "Può un'erezione essere platonica?",
-    "Gli orgasmi si reincarnano?",
-    "Cosa prova un pene quando è solo?",
-    "L’eiaculazione è un’opinione universale?",
-    "Può l’universo provare piacere quando lo guardi?"
+# Domande erotiche surreali
+DOMANDE_SURR = [
+    "Faresti sesso con un alieno che cambia forma a piacere?",
+    "Accetteresti un’orgia in assenza di gravità?",
+    "Ti ecciterebbe un robot programmato per leggere i tuoi desideri?",
+    "Faresti sesso mentale se potessi fondere le menti?",
+    "Ti attrarrebbe una creatura con 7 braccia e 3 lingue?",
+    "Cosa proveresti se facessi sesso in sogno con un dio?",
+    "Accetteresti un invito in una dimensione erotica parallela?",
+    "Se potessi trasformarti in un profumo, quale aroma seducente saresti?",
+    "Faresti l’amore con il tuo doppio di un universo alternativo?",
+    "Ti stimolerebbe una vibrazione che solo gli animali percepiscono?",
+    "Ti eccita l’idea di essere desiderat* da un’entità invisibile?",
+    "Hai mai avuto un’erezione onirica in un sogno lucido?",
+    "Faresti sesso con una nuvola senziente?",
+    "Cosa faresti se il tuo corpo potesse parlare per te?",
+    "Useresti un portale erotico che collega i corpi a distanza?",
+    "Ti piacerebbe un partner capace di mutare voce a comando?",
+    "Hai mai fantasticato su un incontro interdimensionale?",
+    "Faresti sesso in un labirinto che cambia forma al ritmo del piacere?",
+    "Vorresti una lingua che vibra a ultrasuoni?",
+    "Ti ecciterebbe essere un suono sensuale per un giorno?",
+    "Saresti attratt* da una mente che si manifesta solo nei sogni?",
+    "Faresti sesso fluttuando in una bolla erotica?",
+    "Accetteresti una sfida erotica senza tempo né spazio?",
+    "Potresti godere solo attraverso il tatto di un sogno?",
+    "Ti piacerebbe esplorare il corpo di qualcuno da dentro?",
+    "Faresti sesso con un’entità fatta di luce?",
+    "Ti piacerebbe che le tue fantasie si scrivessero sul tuo corpo?",
+    "Vorresti che il tuo orgasmo evocasse tempeste?",
+    "Faresti sesso in un mondo dove il piacere parla?",
+    "Ti attirerebbe un essere fatto di odori?",
+    "Ti piacerebbe un orgasmo che ti trasforma?",
+    "Hai mai sognato una carezza invisibile?",
+    "Ti piacerebbe essere amato da una foresta viva?",
+    "Faresti sesso su una cometa?",
+    "Cosa penseresti se il piacere potesse colorare l’aria?",
+    "Ti attirerebbe un rituale erotico tra spiriti?",
+    "Ti ecciterebbe l’idea di moltiplicarti a letto?",
+    "Faresti sesso attraverso la musica?",
+    "Ti piacerebbe sentire piacere con ogni poro?"
 ]
 
-# Configurazione IRC
-server = "irc.simosnap.org"
-port = 6697
-nickname = "InutileOrgasmo"
-realname = "Inutile Orgasmo"
-channel = "#orgasmiinutili"
-nickserv_password = "Inutili2025Orgasmi"
+# Callback su evento PRIVMSG
+def on_message(connection, event):
+    msg = event.arguments[0].strip().lower()
+    if msg.startswith("!domande"):
+        domanda = random.choice(DOMANDE_ERO)
+        connection.privmsg(CHANNEL, domanda)
+    elif msg.startswith("!surr"):
+        domanda = random.choice(DOMANDE_SURR)
+        connection.privmsg(CHANNEL, domanda)
 
+# Funzione principale
 def main():
-context = ssl.create_default_context()
-ssl_factory = irc.connection.Factory(wrapper=context.wrap_socket)
-    reactor = irc.client.Reactor()
+    context = ssl.create_default_context()
+    ssl_factory = irc.connection.Factory(wrapper=context.wrap_socket)
 
+    reactor = irc.client.Reactor()
     try:
         conn = reactor.server().connect(
-            server,
-            port,
-            nickname,
-            realname=realname,
+            SERVER,
+            PORT,
+            NICKNAME,
+            password=PASSWORD,
             connect_factory=ssl_factory
         )
     except irc.client.ServerConnectionError as e:
         print(f"Errore di connessione: {e}")
         return
 
-    def on_connect(connection, event):
-        print("✅ Connesso a Simosnap.")
-        if nickserv_password:
-            connection.privmsg("NickServ", f"IDENTIFY {nickserv_password}")
-        connection.join(channel)
+    conn.add_global_handler("welcome", lambda c, e: c.join(CHANNEL))
+    conn.add_global_handler("join", lambda c, e: print(f"✅ Entrato nel canale {CHANNEL}"))
+    conn.add_global_handler("privmsg", on_message)
 
-    def on_join(connection, event):
-        if event.source.nick == nickname:
-            print(f"✅ Entrato nel canale {channel}")
-            connection.privmsg(channel, "Eccomi, sono l’orgasmo inutile.")
-
-    def on_pubmsg(connection, event):
-        messaggio = event.arguments[0].strip().lower()
-        if messaggio == "!domande":
-            domanda = random.choice(domande_erotiche)
-            connection.privmsg(channel, f"Inutile domanda erotica: {domanda}")
-        elif messaggio == "!stocazzo":
-            domanda = random.choice(domande_surrealiste)
-            connection.privmsg(channel, f"Inutile domanda surreale: {domanda}")
-
-    def on_disconnect(connection, event):
-        print("❌ Disconnesso.")
-
-    conn.add_global_handler("welcome", on_connect)
-    conn.add_global_handler("join", on_join)
-    conn.add_global_handler("pubmsg", on_pubmsg)
-    conn.add_global_handler("disconnect", on_disconnect)
-
+    print("✅ Connesso a Simosnap.")
     reactor.process_forever()
 
 if __name__ == "__main__":

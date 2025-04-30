@@ -109,8 +109,13 @@ def on_message(connection, event):
 
 # Funzione principale
 def main():
-    context = ssl.create_default_context()
-    ssl_factory = irc.connection.Factory(wrapper=context.wrap_socket)
+   context = ssl.create_default_context()
+
+def ssl_wrapper(sock):
+    return context.wrap_socket(sock, server_hostname=SERVER)
+
+ssl_factory = irc.connection.Factory(wrapper=ssl_wrapper)
+
 
     reactor = irc.client.Reactor()
     try:

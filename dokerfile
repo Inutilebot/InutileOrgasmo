@@ -1,0 +1,14 @@
+# Usa un'immagine Python come base
+FROM python:3.9-slim
+
+# Imposta la directory di lavoro
+WORKDIR /app
+
+# Copia i file nel container
+COPY . .
+
+# Installa le dipendenze necessarie
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Esegui il bot
+CMD ["python", "bot.py"]

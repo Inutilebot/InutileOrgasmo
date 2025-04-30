@@ -122,7 +122,7 @@ def on_notice(connection, event):
     sender = event.source
     msg = event.arguments[0]
     print(f"🔔 Notice da {sender}: {msg}")
-    
+
     if "identified" in msg.lower() or "accepted" in msg.lower():
         print(f"✅ Identificato con NickServ. Entro in {CHANNEL}...")
         connection.join(CHANNEL)

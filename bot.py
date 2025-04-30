@@ -34,13 +34,14 @@ def on_welcome(connection, event):
 
 def on_notice(connection, event):
     sender = event.source or ""
-    msg = event.arguments[0]
+    msg = event.arguments[0].lower()
 
     print(f"🔔 NOTICE da {sender}: {msg}")
 
-    if "you are now identified" in msg.lower():
+    if "sei già identificato" in msg or "you are now identified" in msg:
         print(f"✅ Identificato! Entro in {CHANNEL}...")
         connection.join(CHANNEL)
+
 
 def on_join(connection, event):
     print(f"👋 Entrato nel canale {CHANNEL}.")

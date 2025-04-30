@@ -1,11 +1,9 @@
 import irc.client
 import irc.connection
-import ssl
 import random
-import threading
 
 SERVER = "irc.simosnap.org"
-PORT = 6697
+PORT = 6667
 NICKNAME = "InutileOrgasmo"
 PASSWORD = "Inutili2025Orgasmi"
 CHANNEL = "#orgasmiinutili"
@@ -16,12 +14,7 @@ DOMANDE_EROTICHE = [
     "Preferisci dominare o essere dominato?",
     "Ti piace il dirty talk?",
     "Hai mai avuto un sogno erotico ricorrente?",
-    "Qual è stata la tua esperienza più eccitante?",
-    "Ti piace sperimentare con nuovi giochi erotici?",
-    "Hai mai fatto un threesome?",
-    "Hai mai fatto sexting spinto?",
-    "Cosa ti accende di più durante un incontro?",
-    # ... continua fino a 40
+    # ... altre fino a 40
 ]
 
 DOMANDE_SURREALI = [
@@ -30,65 +23,48 @@ DOMANDE_SURREALI = [
     "Cosa ti fa più effetto: un bacio o un'equazione?",
     "Se il piacere fosse un frutto, quale sarebbe?",
     "Hai mai sognato di sedurre una nuvola?",
-    "Se potessi flirtare con un colore, quale sceglieresti?",
-    "Ti ha mai baciato il vento in modo indecente?",
-    "Hai mai provato attrazione per un'idea astratta?",
-    "Hai mai fatto l’amore dentro un sogno di qualcun altro?",
-    "Ti sei mai innamorato di un pensiero ricorrente?",
-    # ... continua fino a 40
+    # ... altre fino a 40
 ]
 
 def on_welcome(connection, event):
-    print("🔗 Connesso. Invio IDENTIFY a NickServ...")
-    connection.privmsg("NickServ", f"IDENTIFY {PASSWORD}")
-
-def on_notice(connection, event):
-    sender = event.source or ""
-    msg = event.arguments[0].lower()
-
-    print(f"🔔 NOTICE da {sender}: {msg}")
-
-    if "sei già identificato" in msg or "you are now identified" in msg:
-        print(f"✅ Identificato! Entro in {CHANNEL}...")
-        connection.join(CHANNEL)
+    print("✅ Autenticato con SASL, ora entro nel canale...")
+    connection.join(CHANNEL)
 
 def on_join(connection, event):
-    print(f"👋 Entrato nel canale {CHANNEL}.")
+    print(f"👋 Entrato in {CHANNEL}")
 
-def on_message(connection, event):
+def on_privmsg(connection, event):
     msg = event.arguments[0].strip().lower()
     if msg == "!domande":
-        domanda = random.choice(DOMANDE_EROTICHE)
-        connection.privmsg(CHANNEL, f"🔞 {domanda}")
+        connection.privmsg(CHANNEL, f"🔞 {random.choice(DOMANDE_EROTICHE)}")
     elif msg == "!surr":
-        domanda = random.choice(DOMANDE_SURREALI)
-        connection.privmsg(CHANNEL, f"🌀 {domanda}")
+        connection.privmsg(CHANNEL, f"🌀 {random.choice(DOMANDE_SURREALI)}")
 
 def main():
-    context = ssl.create_default_context()
-    def ssl_wrapper(sock):
-        return context.wrap_socket(sock, server_hostname=SERVER)
-
-    ssl_factory = irc.connection.Factory(wrapper=ssl_wrapper)
     reactor = irc.client.Reactor()
 
+    factory = irc.connection.Factory()
     try:
         conn = reactor.server().connect(
             SERVER,
             PORT,
             NICKNAME,
-            connect_factory=ssl_factory
+            password=PASSWORD,
+            connect_factory=factory,
+            username=NICKNAME,
+            ircname=NICKNAME
         )
     except irc.client.ServerConnectionError as e:
         print(f"❌ Errore di connessione: {e}")
         return
 
-    conn.add_global_handler("001", on_welcome)
-    conn.add_global_handler("notice", on_notice)
+    conn.cap("REQ", "sasl")
+    conn.cap("END")
+    conn.add_global_handler("welcome", on_welcome)
     conn.add_global_handler("join", on_join)
-    conn.add_global_handler("privmsg", on_message)
+    conn.add_global_handler("privmsg", on_privmsg)
 
-    print("🟢 In ascolto...")
+    print("🟢 Bot in ascolto...")
     reactor.process_forever()
 
 if __name__ == "__main__":

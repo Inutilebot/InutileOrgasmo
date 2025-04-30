@@ -2,6 +2,7 @@ import irc.client
 import irc.connection
 import ssl
 import random
+import time
 
 # Configurazione IRC
 SERVER = "irc.simosnap.org"
@@ -96,6 +97,7 @@ DOMANDE_SURR = [
     "Ti piacerebbe sentire piacere con ogni poro?"
 ]
 
+# Risposte ai comandi
 def on_message(connection, event):
     msg = event.arguments[0].strip().lower()
     if msg.startswith("!domande"):
@@ -105,15 +107,28 @@ def on_message(connection, event):
         domanda = random.choice(DOMANDE_SURR)
         connection.privmsg(CHANNEL, domanda)
 
+# Messaggio di join
+def on_join(connection, event):
+    if irc.client.NickMask(event.source).nick == NICKNAME:
+        print(f"✅ Bot è entrato nel canale {CHANNEL}")
+        connection.privmsg(CHANNEL, "Sono vivo e perverso 😈 Scrivi !domande o !surr")
+
+# Autenticazione NickServ e join
+def on_connect(connection, event):
+    print("🔗 Login riuscito, mi identifico...")
+    connection.privmsg("NickServ", f"IDENTIFY {PASSWORD}")
+    time.sleep(2)
+    print(f"🚪 Entro nel canale {CHANNEL}...")
+    connection.join(CHANNEL)
+
 def main():
     context = ssl.create_default_context()
-
     def ssl_wrapper(sock):
         return context.wrap_socket(sock, server_hostname=SERVER)
 
     ssl_factory = irc.connection.Factory(wrapper=ssl_wrapper)
-
     reactor = irc.client.Reactor()
+
     try:
         conn = reactor.server().connect(
             SERVER,
@@ -126,8 +141,8 @@ def main():
         print(f"Errore di connessione: {e}")
         return
 
-    conn.add_global_handler("welcome", lambda c, e: c.join(CHANNEL))
-    conn.add_global_handler("join", lambda c, e: print(f"✅ Entrato nel canale {CHANNEL}"))
+    conn.add_global_handler("welcome", on_connect)
+    conn.add_global_handler("join", on_join)
     conn.add_global_handler("privmsg", on_message)
 
     print("✅ Connesso a Simosnap. In ascolto...")

@@ -115,11 +115,14 @@ def on_join(connection, event):
 
 # Autenticazione NickServ e join
 def on_connect(connection, event):
-    print("🔗 Login riuscito, mi identifico...")
+    print("🔗 Connesso al server. Invio IDENTIFY...")
     connection.privmsg("NickServ", f"IDENTIFY {PASSWORD}")
-    time.sleep(2)
-    print(f"🚪 Entro nel canale {CHANNEL}...")
-    connection.join(CHANNEL)
+
+def on_notice(connection, event):
+    msg = event.arguments[0]
+    if "You are now identified" in msg or "Password accepted" in msg:
+        print(f"✅ Identificato con NickServ. Entro in {CHANNEL}...")
+        connection.join(CHANNEL)
 
 def main():
     context = ssl.create_default_context()
@@ -134,7 +137,6 @@ def main():
             SERVER,
             PORT,
             NICKNAME,
-            password=PASSWORD,
             connect_factory=ssl_factory
         )
     except irc.client.ServerConnectionError as e:
@@ -142,11 +144,13 @@ def main():
         return
 
     conn.add_global_handler("welcome", on_connect)
+    conn.add_global_handler("notice", on_notice)
     conn.add_global_handler("join", on_join)
     conn.add_global_handler("privmsg", on_message)
 
-    print("✅ Connesso a Simosnap. In ascolto...")
+    print("🟢 In ascolto...")
     reactor.process_forever()
+
 
 if __name__ == "__main__":
     main()

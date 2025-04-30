@@ -4,15 +4,14 @@ import ssl
 
 def main():
     server = "irc.simosnap.org"
-    port = 6697  # porta SSL
-    nickname = "InutileBot"  # cambia se il nick è già usato
+    port = 6697
+    nickname = "InutileBot"        # cambia se necessario
     realname = "InutileOrgasmo"
-    channel = "#inutile"  # cambia con il canale dove vuoi entrare
+    channel = "#inutile"           # cambia col canale che vuoi usare
+    nickserv_password = "Inutili2025Orgasmi"  # ← sostituisci se usi NickServ, oppure lascia ""
 
-    # Setup SSL connection factory
     ssl_factory = irc.connection.Factory(wrapper=ssl.wrap_socket)
 
-    # Reactor setup
     reactor = irc.client.Reactor()
     try:
         conn = reactor.server().connect(
@@ -26,16 +25,23 @@ def main():
         print(f"Connection failed: {e}")
         return
 
-    # Aggiungi i tuoi handler qui (es. per on_connect, on_privmsg, ecc.)
     def on_connect(connection, event):
-        print(f"Connected to {server}, joining {channel}")
+        print(f"Connected to {server}")
+        # Autenticazione con NickServ, se serve
+        if nickserv_password:
+            connection.privmsg("NickServ", f"IDENTIFY {nickserv_password}")
         connection.join(channel)
 
+    def on_join(connection, event):
+        if event.source.nick == nickname:
+            print(f"Joined channel {channel}")
+            connection.privmsg(channel, "Ciao a tutti, sono tornato.")
+
     def on_disconnect(connection, event):
-        print("Disconnected from server")
+        print("Disconnected from server.")
 
     conn.add_global_handler("welcome", on_connect)
+    conn.add_global_handler("join", on_join)
     conn.add_global_handler("disconnect", on_disconnect)
 
-    # Avvia il loop
     reactor.process_forever()

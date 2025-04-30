@@ -2,16 +2,15 @@ import irc.client
 import irc.connection
 import ssl
 import random
-import time
 
-# Configurazione bot
+# Configurazione IRC
 SERVER = "irc.simosnap.org"
 PORT = 6697
 CHANNEL = "#orgasmiinutili"
 NICKNAME = "InutileOrgasmo"
 PASSWORD = "Inutili2025Orgasmi"
 
-# Domande erotiche
+# 40 domande erotiche
 DOMANDE_ERO = [
     "Qual è la tua fantasia più inconfessabile?",
     "Hai mai fatto sesso in un luogo pubblico?",
@@ -54,7 +53,7 @@ DOMANDE_ERO = [
     "Hai mai usato del cibo in un contesto erotico?"
 ]
 
-# Domande erotiche surreali
+# 40 domande erotiche surreali
 DOMANDE_SURR = [
     "Faresti sesso con un alieno che cambia forma a piacere?",
     "Accetteresti un’orgia in assenza di gravità?",
@@ -97,7 +96,6 @@ DOMANDE_SURR = [
     "Ti piacerebbe sentire piacere con ogni poro?"
 ]
 
-# Callback su evento PRIVMSG
 def on_message(connection, event):
     msg = event.arguments[0].strip().lower()
     if msg.startswith("!domande"):
@@ -107,15 +105,13 @@ def on_message(connection, event):
         domanda = random.choice(DOMANDE_SURR)
         connection.privmsg(CHANNEL, domanda)
 
-# Funzione principale
 def main():
-   context = ssl.create_default_context()
+    context = ssl.create_default_context()
 
-def ssl_wrapper(sock):
-    return context.wrap_socket(sock, server_hostname=SERVER)
+    def ssl_wrapper(sock):
+        return context.wrap_socket(sock, server_hostname=SERVER)
 
-ssl_factory = irc.connection.Factory(wrapper=ssl_wrapper)
-
+    ssl_factory = irc.connection.Factory(wrapper=ssl_wrapper)
 
     reactor = irc.client.Reactor()
     try:
@@ -134,7 +130,7 @@ ssl_factory = irc.connection.Factory(wrapper=ssl_wrapper)
     conn.add_global_handler("join", lambda c, e: print(f"✅ Entrato nel canale {CHANNEL}"))
     conn.add_global_handler("privmsg", on_message)
 
-    print("✅ Connesso a Simosnap.")
+    print("✅ Connesso a Simosnap. In ascolto...")
     reactor.process_forever()
 
 if __name__ == "__main__":

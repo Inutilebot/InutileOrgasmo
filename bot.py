@@ -4,7 +4,7 @@ import time
 import ssl  # Importa la libreria per SSL
 
 server = "irc.simosnap.com"
-port = 6697  # Cambia la porta a 6697 per supportare SSL
+port = 6697  # Porta per SSL
 nickname = "inutileorgasmo"
 password = "Inutili2025Orgasmi"
 channel = "#orgasmiinutili"
@@ -25,11 +25,14 @@ domande_surreali = [
     "Ti sei mai eccitato guardando un semaforo cambiare colore?",
 ] * 8
 
+# Crea un contesto SSL
+context = ssl.create_default_context()
+
 # Crea la connessione socket
 irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-# Aggiungi supporto SSL alla connessione
-irc = ssl.wrap_socket(irc)
+# Connessione SSL
+irc = context.wrap_socket(irc, server_hostname=server)
 
 # Connessione al server IRC con la porta 6697 (SSL)
 irc.connect((server, port))

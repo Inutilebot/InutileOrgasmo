@@ -119,10 +119,14 @@ def on_connect(connection, event):
     connection.privmsg("NickServ", f"IDENTIFY {PASSWORD}")
 
 def on_notice(connection, event):
+    sender = event.source
     msg = event.arguments[0]
-    if "You are now identified" in msg or "Password accepted" in msg:
+    print(f"🔔 Notice da {sender}: {msg}")
+    
+    if "identified" in msg.lower() or "accepted" in msg.lower():
         print(f"✅ Identificato con NickServ. Entro in {CHANNEL}...")
         connection.join(CHANNEL)
+
 
 def main():
     context = ssl.create_default_context()

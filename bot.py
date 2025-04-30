@@ -1,9 +1,10 @@
 import socket
 import random
 import time
+import os
 
 server = "irc.simosnap.com"
-port = 6667
+port = int(os.getenv("PORT", 6667))  # Usa la porta di Render, altrimenti la porta di default (6667)
 nickname = "inutileorgasmo"
 password = "Inutili2025Orgasmi"
 channel = "#orgasmiinutili"

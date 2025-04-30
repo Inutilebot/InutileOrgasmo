@@ -98,7 +98,7 @@ channel = "#orgasmiinutili"
 nickserv_password = "Inutili2025Orgasmi"
 
 def main():
-    ssl_factory = irc.connection.Factory(wrapper=ssl.wrap_socket)
+ssl_factory = irc.connection.Factory(wrapper=ssl.create_default_context().wrap_socket)
     reactor = irc.client.Reactor()
 
     try:

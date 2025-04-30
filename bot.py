@@ -16,7 +16,12 @@ DOMANDE_EROTICHE = [
     "Preferisci dominare o essere dominato?",
     "Ti piace il dirty talk?",
     "Hai mai avuto un sogno erotico ricorrente?",
-    # ... fino a 40
+    "Qual è stata la tua esperienza più eccitante?",
+    "Ti piace sperimentare con nuovi giochi erotici?",
+    "Hai mai fatto un threesome?",
+    "Hai mai fatto sexting spinto?",
+    "Cosa ti accende di più durante un incontro?",
+    # ... continua fino a 40
 ]
 
 DOMANDE_SURREALI = [
@@ -25,7 +30,12 @@ DOMANDE_SURREALI = [
     "Cosa ti fa più effetto: un bacio o un'equazione?",
     "Se il piacere fosse un frutto, quale sarebbe?",
     "Hai mai sognato di sedurre una nuvola?",
-    # ... fino a 40
+    "Se potessi flirtare con un colore, quale sceglieresti?",
+    "Ti ha mai baciato il vento in modo indecente?",
+    "Hai mai provato attrazione per un'idea astratta?",
+    "Hai mai fatto l’amore dentro un sogno di qualcun altro?",
+    "Ti sei mai innamorato di un pensiero ricorrente?",
+    # ... continua fino a 40
 ]
 
 def on_welcome(connection, event):
@@ -42,12 +52,11 @@ def on_notice(connection, event):
         print(f"✅ Identificato! Entro in {CHANNEL}...")
         connection.join(CHANNEL)
 
-
 def on_join(connection, event):
     print(f"👋 Entrato nel canale {CHANNEL}.")
 
 def on_message(connection, event):
-    msg = event.arguments[0].strip()
+    msg = event.arguments[0].strip().lower()
     if msg == "!domande":
         domanda = random.choice(DOMANDE_EROTICHE)
         connection.privmsg(CHANNEL, f"🔞 {domanda}")
@@ -75,6 +84,7 @@ def main():
         return
 
     conn.add_global_handler("001", on_welcome)
+    conn.add_global_handler("notice", on_notice)
     conn.add_global_handler("join", on_join)
     conn.add_global_handler("privmsg", on_message)
 
